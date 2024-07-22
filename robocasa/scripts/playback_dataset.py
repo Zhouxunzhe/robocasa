@@ -8,6 +8,8 @@ import random
 import time
 from termcolor import colored
 
+import cv2
+
 import robocasa
 import robosuite
 
@@ -39,10 +41,11 @@ def playback_trajectory_with_env(
         camera_names (list): determines which camera(s) are used for rendering. Pass more than
             one to output a video with multiple camera views concatenated horizontally.
         first (bool): if True, only use the first frame of each episode.
+        verbose (bool): if True, print environment-related messages
     """
     write_video = (video_writer is not None)
     video_count = 0
-    assert not (render and write_video)
+    # assert not (render and write_video)
 
     # load the initial state
     ## this reset call doesn't seem necessary.
@@ -82,7 +85,7 @@ def playback_trajectory_with_env(
             # env.render(mode="human", camera_name=camera_names[0])
             if env.viewer is None:
                 env.initialize_renderer()
-                
+
             # so that mujoco viewer renders
             env.viewer.update()
 
@@ -97,13 +100,18 @@ def playback_trajectory_with_env(
             if video_count % video_skip == 0:
                 video_img = []
                 for cam_name in camera_names:
-                    video_img.append(env.render(mode="rgb_array", height=512, width=512, camera_name=cam_name))
-                video_img = np.concatenate(video_img, axis=1) # concatenate horizontally
-                video_writer.append_data(video_img)
+                    video_img.append(env.render())
+                # video_img = np.concatenate(video_img, axis=1) # concatenate horizontally
+                video_writer.append_data(np.array(video_img[0]))
             video_count += 1
 
         if first:
             break
+
+    # for img in video_img:
+    #     video_writer.write(img)
+    #
+    # video_writer.release()
 
 
 def playback_trajectory_with_obs(
@@ -133,8 +141,8 @@ def playback_trajectory_with_obs(
         if video_count % video_skip == 0:
             # concatenate image obs together
             im = [traj_grp["obs/{}".format(k + "_image")][i] for k in image_names]
-            frame = np.concatenate(im, axis=1)
-            video_writer.append_data(frame)
+            # frame = np.concatenate(im, axis=1)
+            video_writer.append_data(np.array(im[0]))
         video_count += 1
 
         if first:
@@ -287,7 +295,7 @@ def playback_dataset(args):
 
         env_kwargs = env_meta["env_kwargs"]
         env_kwargs["has_renderer"] = False
-        env_kwargs["renderer"] = "mjviewer"
+        env_kwargs["renderer"] = "mujoco"
         env_kwargs["has_offscreen_renderer"] = False #write_video
         env_kwargs["use_camera_obs"] = False
 
@@ -337,8 +345,11 @@ def playback_dataset(args):
 
     # maybe dump video
     video_writer = None
-    if write_video:
-        video_writer = imageio.get_writer(args.video_path, fps=20)
+    # if write_video:
+    video_writer = imageio.get_writer(args.video_path, fps=20)
+    # size = (1280, 800)
+    # fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    # video_writer = cv2.VideoWriter(args.video_path, fourcc, 20, size, True)
 
     for ind in range(len(demos)):
         ep = demos[ind]

@@ -51,7 +51,10 @@ class Kitchen(ManipulationEnv):
         placement_initializer=None,
         has_renderer=False,
         has_offscreen_renderer=True,
-        render_camera="robot0_agentview_center",
+        # TODO(zxz): modify here to choose your desired view
+        # ('robot0_robotview', 'robot0_agentview_center', 'robot0_agentview_left',
+        # 'robot0_agentview_right', 'robot0_frontview', 'robot0_eye_in_hand')
+        render_camera="robot0_frontview",
         render_collision_mesh=False,
         render_visual_mesh=True,
         render_gpu_device_id=-1,
@@ -133,6 +136,9 @@ class Kitchen(ManipulationEnv):
             robots = [robots]
         if robots[0] == "PandaMobile":
             initial_qpos=(-0.01612974, -1.03446714, -0.02397936, -2.27550888, 0.03932365, 1.51639493, 0.69615947),
+
+        has_renderer = True
+        has_offscreen_renderer = True
 
         super().__init__(
             robots=robots,

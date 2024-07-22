@@ -95,7 +95,10 @@ if __name__ == "__main__":
         parser.video_path = None
         parser.render = True
         parser.use_actions = False
-        parser.render_image_names = ["robot0_agentview_center"]
+        # TODO(zxz): modify here to choose your desired view
+        # ('robot0_robotview', 'robot0_agentview_center', 'robot0_agentview_left',
+        # 'robot0_agentview_right', 'robot0_frontview', 'robot0_eye_in_hand')
+        parser.render_image_names = ["robot0_frontview"]
         parser.use_obs = False
         parser.n = 1
         parser.filter_key = None
